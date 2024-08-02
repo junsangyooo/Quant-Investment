@@ -33,7 +33,6 @@ PATH = "oauth2/tokenP"
 URL = f"{URL_BASE}/{PATH}"
 
 res = requests.post(URL, headers=headers, data=json.dumps(body))
-
 ACCESS_TOKEN = res.json()["access_token"]
 print(URL)
 print(ACCESS_TOKEN)

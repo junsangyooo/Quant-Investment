@@ -21,10 +21,8 @@ clearConsole = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
 
 key_bytes = 32
 
-# config_root = 'd:\\KIS\\config\\'  # 토큰 파일이 저장될 폴더, 제3자가 찾지 어렵도록 경로 설정하시기 바랍니다.
-#token_tmp = config_root + 'KIS000000'  # 토큰 로컬저장시 파일 이름 지정, 파일이름을 토큰값이 유추가능한 파일명은 삼가바랍니다.
-#token_tmp = config_root + 'KIS' + datetime.today().strftime("%Y%m%d%H%M%S")  # 토큰 로컬저장시 파일명 년월일시분초
-# token_tmp = config_root + 'KIS' + datetime.today().strftime("%Y%m%d")  # 토큰 로컬저장시 파일명 년월일
+config_root = 'd:\\KIS\\config\\'  # 토큰 파일이 저장될 폴더, 제3자가 찾지 어렵도록 경로 설정하시기 바랍니다.
+token_tmp = config_root + 'KIS' + datetime.today().strftime("%Y%m%d")  # 토큰 로컬저장시 파일명 년월일
 
 # 접근토큰 관리하는 파일 존재여부 체크, 없으면 생성
 if os.path.exists(token_tmp) == False:
@@ -36,10 +34,7 @@ with open('config.yaml', encoding='UTF-8') as f:
     _cfg = yaml.load(f, Loader=yaml.FullLoader)
 
 _TRENV = tuple()
-_last_auth_time = datetime.now()
-_autoReAuth = False
-_DEBUG = False
-_isPaper = False
+# _DEBUG = False
 
 # 기본 헤더값 정의
 _base_headers = {
@@ -79,16 +74,13 @@ def read_token():
             # print('Need new token: ', tkg_tmp['valid-date'])
             return None
     except Exception as e:
-        # print('read token error: ', e)
+        print('read token error: ', e)
         return None
 
 # 토큰 유효시간 체크해서 만료된 토큰이면 재발급처리
 def _getBaseHeader():
-    if _autoReAuth: reAuth()
     return copy.deepcopy(_base_headers)
 
-
-# 가져오기 : 앱키, 앱시크리트, 종합계좌번호(계좌번호 중 숫자8자리), 계좌상품코드(계좌번호 중 숫자2자리), 토큰, 도메인
 def _setTRENV(cfg):
     nt1 = namedtuple('KISEnv', ['my_app', 'my_sec', 'my_acct', 'my_prod', 'my_token', 'my_url'])
     d = {
@@ -105,77 +97,39 @@ def _setTRENV(cfg):
     _TRENV = nt1(**d)
 
 
-def isPaperTrading():  # 모의투자 매매
-    return _isPaper
-
-
-# 실전투자면 'prod', 모의투자면 'vps'를 셋팅 하시기 바랍니다.
-def changeTREnv(token_key, svr='prod', product=_cfg['my_prod']):
+def changeTREnv(token_key):
     cfg = dict()
 
-    global _isPaper
-    if svr == 'prod':  # 실전투자
-        ak1 = 'my_app'  # 실전투자용 앱키
-        ak2 = 'my_sec'  # 실전투자용 앱시크리트
-        _isPaper = False
-    elif svr == 'vps':  # 모의투자
-        ak1 = 'paper_app'  # 모의투자용 앱키
-        ak2 = 'paper_sec'  # 모의투자용 앱시크리트
-        _isPaper = True
-
-    cfg['my_app'] = _cfg[ak1]
-    cfg['my_sec'] = _cfg[ak2]
-
-    if svr == 'prod' and product == '01':  # 실전투자 주식투자, 위탁계좌, 투자계좌
-        cfg['my_acct'] = _cfg['my_acct_stock']
-    elif svr == 'prod' and product == '30':  # 실전투자 증권저축계좌
-        cfg['my_acct'] = _cfg['my_acct_stock']
-    elif svr == 'prod' and product == '03':  # 실전투자 선물옵션(파생)
-        cfg['my_acct'] = _cfg['my_acct_future']
-    elif svr == 'vps' and product == '01':  # 모의투자 주식투자, 위탁계좌, 투자계좌
-        cfg['my_acct'] = _cfg['my_paper_stock']
-    elif svr == 'vps' and product == '03':  # 모의투자 선물옵션(파생)
-        cfg['my_acct'] = _cfg['my_paper_future']
-
-    cfg['my_prod'] = product
+    cfg['my_app'] = _cfg['app_key'] # App Key
+    cfg['my_sec'] = _cfg['app_secret'] # App Secret
+    cfg['my_acct'] = _cfg['acc'] # 계좌번호(8자리)
+    cfg['my_prod'] = _cfg['my_prod'] # 01
     cfg['my_token'] = token_key
-    cfg['my_url'] = _cfg[svr]
+    cfg['my_url'] = _cfg['prod']
 
     # print(cfg)
     _setTRENV(cfg)
 
-
+# Get the immutable tuples from the dictionary(json_data)
 def _getResultObject(json_data):
     _tc_ = namedtuple('res', json_data.keys())
-
     return _tc_(**json_data)
 
 
 # Token 발급, 유효기간 1일, 6시간 이내 발급시 기존 token값 유지, 발급시 알림톡 무조건 발송
 # 모의투자인 경우  svr='vps', 투자계좌(01)이 아닌경우 product='XX' 변경하세요 (계좌번호 뒤 2자리)
-def auth(svr='prod', product=_cfg['my_prod'], url=None):
+def auth():
     p = {
-        "grant_type": "client_credentials",
+        "grant_type": "client_credentials"
     }
-    # 개인 환경파일 "kis_devlp.yaml" 파일을 참조하여 앱키, 앱시크리트 정보 가져오기
-    # 개인 환경파일명과 위치는 고객님만 아는 위치로 설정 바랍니다.
-    if svr == 'prod':  # 실전투자
-        ak1 = 'my_app'  # 앱키 (실전투자용)
-        ak2 = 'my_sec'  # 앱시크리트 (실전투자용)
-    elif svr == 'vps':  # 모의투자
-        ak1 = 'paper_app'  # 앱키 (모의투자용)
-        ak2 = 'paper_sec'  # 앱시크리트 (모의투자용)
-
-    # 앱키, 앱시크리트 가져오기
-    p["appkey"] = _cfg[ak1]
-    p["appsecret"] = _cfg[ak2]
+    p["appkey"] = _cfg['app_key']
+    p["appsecret"] = _cfg['app_secret']
 
     # 기존 발급된 토큰이 있는지 확인
     saved_token = read_token()  # 기존 발급 토큰 확인
-    # print("saved_token: ", saved_token)
     if saved_token is None:  # 기존 발급 토큰 확인이 안되면 발급처리
-        url = f'{_cfg[svr]}/oauth2/tokenP'
-        res = requests.post(url, data=json.dumps(p), headers=_getBaseHeader())  # 토큰 발급
+        url = f'{_cfg['prod']}/oauth2/tokenP'
+        res = requests.post(url, headers=_getBaseHeader(), data=json.dumps(p))  # 토큰 발급
         rescode = res.status_code
         if rescode == 200:  # 토큰 정상 발급
             my_token = _getResultObject(res.json()).access_token  # 토큰값 가져오기
@@ -188,30 +142,25 @@ def auth(svr='prod', product=_cfg['my_prod'], url=None):
         my_token = saved_token  # 기존 발급 토큰 확인되어 기존 토큰 사용
 
     # 발급토큰 정보 포함해서 헤더값 저장 관리, API 호출시 필요
-    changeTREnv(f"Bearer {my_token}", svr, product)
+    changeTREnv(f"Bearer {my_token}")
 
     _base_headers["authorization"] = _TRENV.my_token
     _base_headers["appkey"] = _TRENV.my_app
     _base_headers["appsecret"] = _TRENV.my_sec
 
-    global _last_auth_time
-    _last_auth_time = datetime.now()
-
-    if (_DEBUG):
-        print(f'[{_last_auth_time}] => get AUTH Key completed!')
+    # if (_DEBUG):
+    #     print(f'[{_last_auth_time}] => get AUTH Key completed!')
 
 
 # end of initialize, 토큰 재발급, 토큰 발급시 유효시간 1일
 # 프로그램 실행시 _last_auth_time에 저장하여 유효시간 체크, 유효시간 만료시 토큰 발급 처리
-def reAuth(svr='prod', product=_cfg['my_prod']):
-    n2 = datetime.now()
-    if (n2 - _last_auth_time).seconds >= 86400:  # 유효시간 1일
-        auth(svr, product)
-
+#   def reAth():
+#       n2 = datetime.now()
+#       if (n2 - _last_auth_time).seconds >= 86400:  # 유효시간 1일
+#           auth()
 
 def getEnv():
     return _cfg
-
 
 def getTREnv():
     return _TRENV
