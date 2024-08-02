@@ -258,9 +258,9 @@ def _url_fetch(api_url, ptr_id, tr_cont, params, appendHeaders=None, postFlag=Fa
 
     # 추가 Header 설정
     tr_id = ptr_id
-    if ptr_id[0] in ('T', 'J', 'C'):  # 실전투자용 TR id 체크
-        if isPaperTrading():  # 모의투자용 TR id 식별
-            tr_id = 'V' + ptr_id[1:]
+    # if ptr_id[0] in ('T', 'J', 'C'):  # 실전투자용 TR id 체크
+    #     if isPaperTrading():  # 모의투자용 TR id 식별
+    #         tr_id = 'V' + ptr_id[1:]
 
     headers["tr_id"] = tr_id  # 트랜젝션 TR id
     headers["custtype"] = "P"  # 일반(개인고객,법인고객) "P", 제휴사 "B"
