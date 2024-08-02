@@ -34,7 +34,8 @@ with open('config.yaml', encoding='UTF-8') as f:
     _cfg = yaml.load(f, Loader=yaml.FullLoader)
 
 _TRENV = tuple()
-# _DEBUG = False
+_last_auth_time = datetime.now()
+_DEBUG = True
 
 # 기본 헤더값 정의
 _base_headers = {
@@ -147,8 +148,18 @@ def auth():
     _base_headers["appkey"] = _TRENV.my_app
     _base_headers["appsecret"] = _TRENV.my_sec
 
-    # if (_DEBUG):
-    #     print(f'[{_last_auth_time}] => get AUTH Key completed!')
+    global _last_auth_time
+    _last_auth_time = datetime.now()
+
+    if (_DEBUG):
+        print(f'[{_last_auth_time}] => get AUTH Key completed!')
+
+# end of initialize, 토큰 재발급, 토큰 발급시 유효시간 1일
+# 프로그램 실행시 _last_auth_time에 저장하여 유효시간 체크, 유효시간 만료시 토큰 발급 처리
+def reAuth(svr='prod', product=_cfg['my_prod']):
+    n2 = datetime.now()
+    if (n2 - _last_auth_time).seconds >= 86400:  # 유효시간 1일
+        auth(svr, product)
 
 def getEnv():
     return _cfg
@@ -172,6 +183,7 @@ def set_order_hash_key(h, p):
 
 
 # API 호출 응답에 필요한 처리 공통 함수
+# API에서 받는 Respons들을 일괄된 형식(APIResp) 클래스로 저장
 class APIResp:
     def __init__(self, resp):
         self._rescode = resp.status_code
