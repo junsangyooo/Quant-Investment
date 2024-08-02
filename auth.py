@@ -117,7 +117,6 @@ def _getResultObject(json_data):
 
 
 # Token 발급, 유효기간 1일, 6시간 이내 발급시 기존 token값 유지, 발급시 알림톡 무조건 발송
-# 모의투자인 경우  svr='vps', 투자계좌(01)이 아닌경우 product='XX' 변경하세요 (계좌번호 뒤 2자리)
 def auth():
     p = {
         "grant_type": "client_credentials"
@@ -150,14 +149,6 @@ def auth():
 
     # if (_DEBUG):
     #     print(f'[{_last_auth_time}] => get AUTH Key completed!')
-
-
-# end of initialize, 토큰 재발급, 토큰 발급시 유효시간 1일
-# 프로그램 실행시 _last_auth_time에 저장하여 유효시간 체크, 유효시간 만료시 토큰 발급 처리
-#   def reAth():
-#       n2 = datetime.now()
-#       if (n2 - _last_auth_time).seconds >= 86400:  # 유효시간 1일
-#           auth()
 
 def getEnv():
     return _cfg
