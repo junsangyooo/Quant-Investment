@@ -101,9 +101,9 @@ def _setTRENV(cfg):
 def changeTREnv(token_key):
     cfg = dict()
 
-    cfg['my_app'] = _cfg['app_key'] # App Key
-    cfg['my_sec'] = _cfg['app_secret'] # App Secret
-    cfg['my_acct'] = _cfg['acc'] # 계좌번호(8자리)
+    cfg['my_app'] = _cfg['my_app'] # App Key
+    cfg['my_sec'] = _cfg['my_sec'] # App Secret
+    cfg['my_acct'] = _cfg['my_acct'] # 계좌번호(8자리)
     cfg['my_prod'] = _cfg['my_prod'] # 01
     cfg['my_token'] = token_key
     cfg['my_url'] = _cfg['prod']
@@ -122,8 +122,8 @@ def auth():
     p = {
         "grant_type": "client_credentials"
     }
-    p["appkey"] = _cfg['app_key']
-    p["appsecret"] = _cfg['app_secret']
+    p["appkey"] = _cfg['my_app']
+    p["appsecret"] = _cfg['my_sec']
 
     # 기존 발급된 토큰이 있는지 확인
     saved_token = read_token()  # 기존 발급 토큰 확인
