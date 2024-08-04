@@ -1,29 +1,18 @@
 # 웹 소켓 모듈을 선언한다.
-import websockets
-import json
-import requests
-import os
-import asyncio
-import time
-
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
 import auth as au
+import domestic as dm
 
-clearConsole = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
-
-key_bytes = 32
+import pandas as pd
+import sys
 
 # Basic instruction(blog): https://wikidocs.net/profile/info/book/13688
 # Basic instruction(api): https://apiportal.koreainvestment.com/apiservice/oauth2#L_5c87ba63-740a-4166-93ac-803510bb9c02
 # KoreaInvest Github: https://github.com/koreainvestment/open-trading-api
 # Jocoding Github: https://github.com/youtube-jocoding/koreainvestment-autotrade
-# postman.com/
-# 계좌번호: 64428904
-APP_KEY = "PS87iiWlksmzSU8JilwwZyO6I6pH4k4qKXeR"
-APP_SECRET = "E9mgaarv+ndZ93+LU2+bKjYWAXHanH8+g0vtDLCYVN6sAKX81YQNJAO3SajR74nzboVgPu1NA2jQkGJai9pCAe/8gTEGTM1L58udnrRQUpAZTP9Jes3d3X06a3iBsO6RF0EA2qyQZtmvWuesHnO7Gl653+wcFZAIw+mydJTFQAp1pI3Vgbw="
 
 # # AES256 DECODE
 # def aes_cbc_base64_dec(key, iv, cipher_text):
