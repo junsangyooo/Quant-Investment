@@ -1,14 +1,9 @@
 import auth as au
-
-import time, copy
-import requests
-import json
-
+import time
 import pandas as pd
 
 from collections import namedtuple
-from datetime import datetime
-from pandas import DataFrame
+from datetime import datetime, timedelta
 
 #====|  [국내주식] 주문/계좌  |===========================================================================================================================
 
