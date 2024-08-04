@@ -1,21 +1,12 @@
-import time, copy
+import copy
 import yaml
 import requests
 import json
 
-# 웹 소켓 모듈을 선언한다.
-import asyncio
-
 import os
-
-import pandas as pd
 
 from collections import namedtuple
 from datetime import datetime
-
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
-from base64 import b64decode
 
 clearConsole = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
 
