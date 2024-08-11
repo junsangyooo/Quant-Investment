@@ -18,6 +18,7 @@ class stock:
         return self.industry
 
 BASEURL = 'https://stockanalysis.com/'
+yahooURL = 'https://finance.yahoo.com/quote/'
 
 def getIndustries():
     response = requests.get(BASEURL + 'stocks/industry/sectors/')
