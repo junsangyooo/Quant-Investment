@@ -17,20 +17,34 @@ class stock:
     def getIndustry(self):
         return self.industry
 
-baseUrl = 'https://stockanalysis.com/stocks/'
+BASEURL = 'https://stockanalysis.com/'
 
 def getIndustries():
-    response = requests.get(baseUrl + 'industry/sectors/')
+    response = requests.get(BASEURL + 'stocks/industry/sectors/')
     html = response.text
     soup = BeautifulSoup(html, 'html.parser')
 
-    elements = soup.find('tbody').find_all('td', class_='svelte-qmv8b3')
-    print(len(elements))
+    elements = soup.find('tbody').find_all('tr', class_='svelte-qmv8b3')
     industries = {}
     for element in elements:
+        element = element.find('td', class_='svelte-qmv8b3')
         industry = element.find('a').text
-        url = element.find('a', href=True)
+        url = element.find('a', href=True).get('href')
         industries[industry] = url
     return industries
 
-print(getIndustries())
+def getStock():
+    stocks = []
+    industries = getIndustries()
+    for industry, url in industries.items():
+        response = requests.get(BASEURL + url)
+        html = response.text
+
+        soup = BeautifulSoup(html, 'html.parser')
+        body = soup.find('tbody')
+        elements = body.find_all('tr', class_='svelte-eurwtr')
+        for element in elements:
+            sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
+            name = element.find(class_='slw svelte-eurwtr').text
+            stocks.append(stock(sym,name,industry))
+    return stocks
