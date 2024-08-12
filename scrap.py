@@ -60,7 +60,6 @@ def getStock(indList = None):
 
 def getHistoricalData(st):
     url = st.getUrl()
-    sym = st.getSym()
 
     # Set up the directory where the script is running as the download directory
     current_directory = os.getcwd()
@@ -81,12 +80,7 @@ def getHistoricalData(st):
 # Initialize WebDriver with the Chrome options
     driver = webdriver.Chrome(options=chrome_options)
     #driver = webdriver.Chrome()
-    driver.get(f"https://finance.yahoo.com/quote/{sym}/history/")
-
-    # BeautifulSoup Setting
-    # response = requests.get(url)
-    # html = response.text
-    # soup = BeautifulSoup(html, 'html.parser')
+    driver.get(url)
     
     # Wait for the "Time Period" button to be clickable and click it
     time_period_button = WebDriverWait(driver, 10).until(
@@ -109,19 +103,8 @@ def getHistoricalData(st):
     # Wait for the file to be downloaded
     time.sleep(10)
 
-    # Get the CSV file content from the browser's download
-    # csv_content = driver.page_source
-
     # Close the browser
     driver.quit()
-
-    # Convert the CSV content to a Pandas DataFrame
-    # csv_io = StringIO(csv_content)
-    # df = pd.read_csv(csv_io)
-
-    # Now `df` contains the data
-    # print(df.head())
-    # return df
 
 
 indList = ['Technology']
