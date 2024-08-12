@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from selenium import webdriver
 import requests
 import pandas as pd
 
@@ -6,7 +7,7 @@ class stock:
     def __init__(self, sym, name, industry):
         self.sym = sym
         self.name = name
-        self.link = 'https://finance.yahoo.com/quote/' + sym + '/'
+        self.link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
         self.industry = industry
     def getSym(self):
         return self.sym
@@ -20,23 +21,23 @@ class stock:
 BASEURL = 'https://stockanalysis.com/'
 yahooURL = 'https://finance.yahoo.com/quote/'
 
-def getIndustries():
+def getIndustries(indList = None):
+    industries = {}
     response = requests.get(BASEURL + 'stocks/industry/sectors/')
     html = response.text
     soup = BeautifulSoup(html, 'html.parser')
-
     elements = soup.find('tbody').find_all('tr', class_='svelte-qmv8b3')
-    industries = {}
     for element in elements:
         element = element.find('td', class_='svelte-qmv8b3')
         industry = element.find('a').text
-        url = element.find('a', href=True).get('href')
-        industries[industry] = url
+        if indList == None or industry in indList:
+            industries[industry] = element.find('a', href=True).get('href')
     return industries
 
-def getStock():
+
+def getStock(indList = None):
     stocks = []
-    industries = getIndustries()
+    industries = getIndustries(indList)
     for industry, url in industries.items():
         response = requests.get(BASEURL + url)
         html = response.text
@@ -49,3 +50,7 @@ def getStock():
             name = element.find(class_='slw svelte-eurwtr').text
             stocks.append(stock(sym,name,industry))
     return stocks
+
+def getHistoricalData(st):
+    
+
