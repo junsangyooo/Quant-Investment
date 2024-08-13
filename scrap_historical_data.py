@@ -5,7 +5,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import pandas as pd
 import time
 import os
 
@@ -23,10 +22,6 @@ class stock:
         return self.link
     def getIndustry(self):
         return self.industry
-    def setHistory(self, data):
-        self.history = data
-    def getHistory(self):
-        return self.history
 
 BASEURL = 'https://stockanalysis.com/'
 yahooURL = 'https://finance.yahoo.com/quote/'
