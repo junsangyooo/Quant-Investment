@@ -24,6 +24,10 @@ class stock:
         return self.link
     def getIndustry(self):
         return self.industry
+    def setHistory(self, data):
+        self.history = data
+    def getHistory(self):
+        return self.history
 
 BASEURL = 'https://stockanalysis.com/'
 yahooURL = 'https://finance.yahoo.com/quote/'
@@ -60,6 +64,7 @@ def getStock(indList = None):
 
 def getHistoricalData(st):
     url = st.getUrl()
+    sym = st.getSym()
 
     # Set up the directory where the script is running as the download directory
     current_directory = os.getcwd()
@@ -106,7 +111,16 @@ def getHistoricalData(st):
     # Close the browser
     driver.quit()
 
+    #st.setHistory(pd.read_csv(f'{sym}.csv'))
+
+# def getDF(stocks):
+#     for st in stocks: getHistoricalData(st)
+    
+
 
 indList = ['Technology']
 stocks = getStock(indList)
 getHistoricalData(stocks[0])
+
+df = stocks[0].getHistory()
+print(df)
