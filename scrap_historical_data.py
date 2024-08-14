@@ -61,6 +61,10 @@ def getHistoricalData(stocks):
     current_directory = os.getcwd()
     download_directory = os.path.join(current_directory, 'historical_data')
 
+    # Create the download directory if it doesn't exist
+    if not os.path.exists(download_directory):
+        os.makedirs(download_directory)
+
     # Selenium Setting
     chrome_options = Options()
     prefs = {
@@ -78,6 +82,16 @@ def getHistoricalData(stocks):
     driver = webdriver.Chrome(options=chrome_options)
     for st in stocks:
         url = st.getUrl()
+        sym = st.getSym()
+
+        # Construct the path to the CSV file
+        csv_file_path = os.path.join(download_directory, f'{sym}.csv')
+
+        # Check if the CSV file already exists
+        if os.path.exists(csv_file_path):
+            print(f"File {sym}.csv already exists. Skipping download.")
+            continue
+        
         #driver = webdriver.Chrome()
         driver.get(url)
         
