@@ -166,27 +166,33 @@ def updateDatas():
             
             # Concatenate the new data with the existing DataFrame
             df = pd.concat([df, updateDf], ignore_index=True)
+
+            # Check duplicates
+            originLen = len(df)
+            df.drop_duplicates(inplace=True)
+            afterLen = len(df)
+            if originLen != afterLen:
+                print(f"Duplicates found and removed in {filename}:  {originLen - afterLen} date duplicates.")
+
             # Save the updated DataFrame back to the CSV file
             df.to_csv(os.path.join(dataDir, filename), index=False)
             print(f"Updated data for {sym} has been saved to {filename}")
         else:
             print(f"Failed to fetch data for {sym}. HTTP Status Code: {response.status_code}")
 
-def checkAndFixWrongData():
-    currentDir = os.getcwd()
-    dataDir = os.path.join(currentDir, 'stock_data')
+# def checkAndFixWrongData():
+#     currentDir = os.getcwd()
+#     dataDir = os.path.join(currentDir, 'stock_data')
 
-    for filename in os.listdir(dataDir):
-        df = pd.read_csv(os.path.join(dataDir, filename))
+#     for filename in os.listdir(dataDir):
+#         df = pd.read_csv(os.path.join(dataDir, filename))
 
-        originLen = len(df)
-        df.drop_duplicates(inplace=True)
-        afterLen = len(df)
+#         originLen = len(df)
+#         df.drop_duplicates(inplace=True)
+#         afterLen = len(df)
 
-        if originLen != afterLen:
-            print(f"Duplicates found and removed in {filename}:  {originLen - afterLen} date duplicates.")
+#         if originLen != afterLen:
+#             print(f"Duplicates found and removed in {filename}:  {originLen - afterLen} date duplicates.")
         
-        # Save the cleaned DataFrame back to the CSV file
-        df.to_csv(os.path.join(dataDir, filename), index=False)
-
-checkAndFixWrongData()
+#         # Save the cleaned DataFrame back to the CSV file
+#         df.to_csv(os.path.join(dataDir, filename), index=False)
