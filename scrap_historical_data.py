@@ -39,7 +39,6 @@ def getIndustries(indList = None):
             industries[industry] = element.find('a', href=True).get('href')
     return industries
 
-
 def getStock(indList = None):
     stocks = []
     industries = getIndustries(indList)
@@ -56,79 +55,75 @@ def getStock(indList = None):
             stocks.append(stock(sym,name,industry))
     return stocks
 
-def getHistoricalData(stocks):
+def getHistoricalData(st):
     # Set up the directory where the script is running as the download directory
-    current_directory = os.getcwd()
-    download_directory = os.path.join(current_directory, 'historical_data')
+    currentDirectory = os.getcwd()
+    downloadDirectory = os.path.join(currentDirectory, 'historical_data')
 
     # Create the download directory if it doesn't exist
-    if not os.path.exists(download_directory):
-        os.makedirs(download_directory)
+    if not os.path.exists(downloadDirectory):
+        os.makedirs(downloadDirectory)
 
     # Selenium Setting
-    chrome_options = Options()
+    chromeOptions = Options()
     prefs = {
-        "download.default_directory": download_directory,  # Set the download directory to current directory
+        "download.default_directory": downloadDirectory,  # Set the download directory to current directory
         "download.prompt_for_download": False,
         "directory_upgrade": True,
         "safebrowsing.enabled": True
     }
-    chrome_options.add_experimental_option("prefs", prefs)
-    chrome_options.add_argument("--headless")  # Run headless since there's no GUI in Codespaces
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+    chromeOptions.add_experimental_option("prefs", prefs)
+    chromeOptions.add_argument("--headless")  # Run headless since there's no GUI in Codespaces
+    chromeOptions.add_argument("--no-sandbox")
+    chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver with the Chrome options
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chromeOptions)
 
-    file_downloading = False
-    for st in stocks:
-        url = st.getUrl()
-        sym = st.getSym()
+    url = st.getUrl()
+    sym = st.getSym()
 
-        # Construct the path to the CSV file
-        csv_file_path = os.path.join(download_directory, f'{sym}.csv')
+    # Construct the path to the CSV file
+    filePath = os.path.join(downloadDirectory, f'{sym}.csv')
 
-        # Check if the CSV file already exists
-        if os.path.exists(csv_file_path):
-            print(f"File {sym}.csv already exists. Skipping download.")
-            continue
-        
-        #driver = webdriver.Chrome()
-        driver.get(url)
-        
-        # Wait for the "Time Period" button to be clickable and click it
-        time_period_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "tertiary-btn.fin-size-small.menuBtn.rounded.yf-122t2xs"))
-        )
-        time_period_button.click()
+    # Check if the CSV file already exists
+    if os.path.exists(filePath):
+        print(f"File {sym}.csv already exists. Skipping download.")
+        return
+    
+    #driver = webdriver.Chrome()
+    driver.get(url)
+    
+    # Wait for the "Time Period" button to be clickable and click it
+    periodButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "tertiary-btn.fin-size-small.menuBtn.rounded.yf-122t2xs"))
+    )
+    periodButton.click()
 
-        # Wait for the menu to appear and the "Max" button to be clickable
-        max_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[text()='Max']"))
-        )
-        max_button.click()
+    # Wait for the menu to appear and the "Max" button to be clickable
+    maxButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[text()='Max']"))
+    )
+    maxButton.click()
 
-        # Wait for the download button to be clickable and click it
-        download_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//a[@data-ylk='elm:download;elmt:link;itc:1;sec:qsp-historical;slk:history-download;subsec:download']"))
-        )
-        download_button.click()
-        file_downloading = True
-        
-        # Wait for the file to be downloaded
-        while(file_downloading):
-            time.sleep(0.5)
-            if os.path.exists(csv_file_path): file_downloading = False
-        print(f'{sym}.csv file is successfully downloaded.')
-    print("All stocks' historical data are downloaded.")
+    # Wait for the download button to be clickable and click it
+    downloadButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[@data-ylk='elm:download;elmt:link;itc:1;sec:qsp-historical;slk:history-download;subsec:download']"))
+    )
+    downloadButton.click()
+    
+    # Wait for the file to be downloaded
+    while(True):
+        time.sleep(0.5)
+        if os.path.exists(filePath): break
+    print(f'{sym}.csv file is successfully downloaded.')
+
     # Close the browser
     driver.quit()
 
-def main():
-    # We are going to use only technology stocks for the prototype
-    indList = ['Technology']
-    stocks = getStock(indList)
-    getHistoricalData(stocks)
+# indList = ['Technology']
+# stocks = getStock(indList)
+# for st in stocks:
+#     getHistoricalData(st)
 
-main()
+def find
