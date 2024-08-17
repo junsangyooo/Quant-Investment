@@ -6,7 +6,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from datetime import datetime, timedelta, date
 import os
+from io import StringIO
 import pandas as pd
 
 class stock:
@@ -26,6 +28,8 @@ class stock:
 
 BASEURL = 'https://stockanalysis.com/'
 yahooURL = 'https://finance.yahoo.com/quote/'
+
+DEBUG = False
 
 def getIndustries(indList = None):
     industries = {}
@@ -127,9 +131,50 @@ def getHistoricalData(st):
 # for st in stocks:
 #     getHistoricalData(st)
 
+# Change for your environment
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
+
 def updateDatas():
     currentDir = os.getcwd()
     dataDir = os.path.join(currentDir, 'stock_data')
-    for file in os.listdir(dataDir):
-        df = pd.read_csv(file)
-        
+    
+    endDate = datetime.combine(date.today(), datetime.min.time())
+    for filename in os.listdir(dataDir):
+        df = pd.read_csv(os.path.join(dataDir, filename))
+        startDate = datetime.strptime(df.iloc[-1]['Date'],"%Y-%m-%d") + timedelta(days=1)
+        if DEBUG:
+            print(f"Start date is: {startDate}, and its type is {type(startDate)}")
+            print(f"End date is: {endDate}, and its type is {type(endDate)}")
+
+        if startDate >= endDate: continue
+        startDateEpochTime = int(time.mktime(startDate.timetuple()))
+        endDateEpochTime = int(time.mktime(endDate.timetuple()))
+
+        sym = filename.split('.')[0]
+        href=f"https://query1.finance.yahoo.com/v7/finance/download/{sym}?period1={startDateEpochTime}&period2={endDateEpochTime}&interval=1d&events=history&includeAdjustedClose=true"
+        if DEBUG: print(href)
+
+        # Fetch the CSV data from the URL without saving it to disk
+        response = requests.get(href, headers=headers)
+        print(filename)
+        if response.status_code == 200:
+            updateData = StringIO(response.text)
+            updateDf = pd.read_csv(updateData)
+            
+            # Concatenate the new data with the existing DataFrame
+            df = pd.concat([df, updateDf], ignore_index=True)
+            # Save the updated DataFrame back to the CSV file
+            with open(os.path.join(dataDir, filename), 'w', newline='') as csvfile:
+                df.to_csv(csvfile, index=False)
+            
+            if DEBUG:
+                print(f"Updated data for {sym} has been saved to {filename}")
+        else:
+            if DEBUG:
+                print(f"Failed to fetch data for {sym}. HTTP Status Code: {response.status_code}")
+
+
+
+updateDatas()
