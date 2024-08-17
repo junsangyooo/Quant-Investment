@@ -80,25 +80,28 @@ def getHistoricalData(sym, url):
         print(f"File {sym}.csv already exists. Skipping download.")
         return
     
-    #driver = webdriver.Chrome()
+    print(f'driver.get({url})')
     driver.get(url)
     
     # Wait for the "Time Period" button to be clickable and click it
     periodButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CLASS_NAME, "tertiary-btn.fin-size-small.menuBtn.rounded.yf-122t2xs"))
     )
+    print("click a periodButton")
     periodButton.click()
 
     # Wait for the menu to appear and the "Max" button to be clickable
     maxButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//button[text()='Max']"))
     )
+    print("click a maxButton")
     maxButton.click()
 
     # Wait for the download button to be clickable and click it
     downloadButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//a[@data-ylk='elm:download;elmt:link;itc:1;sec:qsp-historical;slk:history-download;subsec:download']"))
     )
+    print("click a downloadButton")
     downloadButton.click()
     
     # Wait for the file to be downloaded
@@ -125,6 +128,7 @@ def getStock(indList):
             sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
             #name = element.find(class_='slw svelte-eurwtr').text
             link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
+            print(f'call getHistoricalData({sym}, {link})')
             getHistoricalData(sym, link)
 
 # update all csv files in the stock_data for most recent datas
