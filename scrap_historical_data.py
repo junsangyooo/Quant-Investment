@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
+import pandas as pd
 
 class stock:
     def __init__(self, sym, name, industry):
@@ -58,7 +59,7 @@ def getStock(indList = None):
 def getHistoricalData(st):
     # Set up the directory where the script is running as the download directory
     currentDirectory = os.getcwd()
-    downloadDirectory = os.path.join(currentDirectory, 'historical_data')
+    downloadDirectory = os.path.join(currentDirectory, 'stock_data')
 
     # Create the download directory if it doesn't exist
     if not os.path.exists(downloadDirectory):
@@ -126,4 +127,9 @@ def getHistoricalData(st):
 # for st in stocks:
 #     getHistoricalData(st)
 
-def find
+def updateDatas():
+    currentDir = os.getcwd()
+    dataDir = os.path.join(currentDir, 'stock_data')
+    for file in os.listdir(dataDir):
+        df = pd.read_csv(file)
+        
