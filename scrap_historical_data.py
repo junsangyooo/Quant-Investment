@@ -120,7 +120,7 @@ def getHistoricalData(stocks):
         while(file_downloading):
             time.sleep(0.5)
             if os.path.exists(csv_file_path): file_downloading = False
-
+        print(f'{sym}.csv file is successfully downloaded.')
     # Close the browser
     driver.quit()
 
