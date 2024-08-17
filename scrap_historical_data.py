@@ -140,15 +140,16 @@ def updateDatas():
     currentDir = os.getcwd()
     dataDir = os.path.join(currentDir, 'stock_data')
     
-    endDate = datetime.combine(date.today(), datetime.min.time())
+    endDate = datetime.combine(date.today() - timedelta(days=1), datetime.min.time())
     for filename in os.listdir(dataDir):
         df = pd.read_csv(os.path.join(dataDir, filename))
-        startDate = datetime.strptime(df.iloc[-1]['Date'],"%Y-%m-%d") + timedelta(days=1)
+        lastUpdatedDate = datetime.strptime(df.iloc[-1]['Date'],"%Y-%m-%d")
+        if lastUpdatedDate >= endDate: continue
+        startDate = lastUpdatedDate + timedelta(days=1)
         if DEBUG:
             print(f"Start date is: {startDate}, and its type is {type(startDate)}")
             print(f"End date is: {endDate}, and its type is {type(endDate)}")
-
-        if startDate >= endDate: continue
+        
         startDateEpochTime = int(time.mktime(startDate.timetuple()))
         endDateEpochTime = int(time.mktime(endDate.timetuple()))
 
@@ -166,15 +167,26 @@ def updateDatas():
             # Concatenate the new data with the existing DataFrame
             df = pd.concat([df, updateDf], ignore_index=True)
             # Save the updated DataFrame back to the CSV file
-            with open(os.path.join(dataDir, filename), 'w', newline='') as csvfile:
-                df.to_csv(csvfile, index=False)
-            
-            if DEBUG:
-                print(f"Updated data for {sym} has been saved to {filename}")
+            df.to_csv(os.path.join(dataDir, filename), index=False)
+            print(f"Updated data for {sym} has been saved to {filename}")
         else:
-            if DEBUG:
-                print(f"Failed to fetch data for {sym}. HTTP Status Code: {response.status_code}")
+            print(f"Failed to fetch data for {sym}. HTTP Status Code: {response.status_code}")
 
+def checkAndFixWrongData():
+    currentDir = os.getcwd()
+    dataDir = os.path.join(currentDir, 'stock_data')
 
+    for filename in os.listdir(dataDir):
+        df = pd.read_csv(os.path.join(dataDir, filename))
 
-updateDatas()
+        originLen = len(df)
+        df.drop_duplicates(inplace=True)
+        afterLen = len(df)
+
+        if originLen != afterLen:
+            print(f"Duplicates found and removed in {filename}:  {originLen - afterLen} date duplicates.")
+        
+        # Save the cleaned DataFrame back to the CSV file
+        df.to_csv(os.path.join(dataDir, filename), index=False)
+
+checkAndFixWrongData()
