@@ -11,6 +11,11 @@ import os
 from io import StringIO
 import pandas as pd
 
+BASEURL = 'https://stockanalysis.com/'
+yahooURL = 'https://finance.yahoo.com/quote/'
+
+DEBUG = False
+
 class stock:
     def __init__(self, sym, name, industry):
         self.sym = sym
@@ -25,11 +30,6 @@ class stock:
         return self.link
     def getIndustry(self):
         return self.industry
-
-BASEURL = 'https://stockanalysis.com/'
-yahooURL = 'https://finance.yahoo.com/quote/'
-
-DEBUG = False
 
 def getIndustries(indList = None):
     industries = {}
@@ -125,11 +125,6 @@ def getHistoricalData(st):
 
     # Close the browser
     driver.quit()
-
-# indList = ['Technology']
-# stocks = getStock(indList)
-# for st in stocks:
-#     getHistoricalData(st)
 
 # Change for your environment
 headers = {
