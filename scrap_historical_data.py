@@ -47,7 +47,7 @@ class stock:
 
 # recieve the 'stock' type of data and web scrap the historical data of it
 # getHistoricalData(stock) -> save 'sym.csv' file to /cwd/stock_data
-def getHistoricalData(st):
+def getHistoricalData(sym, url):
     # Set up the directory where the script is running as the download directory
     currentDirectory = os.getcwd()
     downloadDirectory = os.path.join(currentDirectory, 'stock_data')
@@ -71,9 +71,6 @@ def getHistoricalData(st):
 
     # Initialize WebDriver with the Chrome options
     driver = webdriver.Chrome(options=chromeOptions)
-
-    url = st.getUrl()
-    sym = st.getSym()
 
     # Construct the path to the CSV file
     filePath = os.path.join(downloadDirectory, f'{sym}.csv')
@@ -113,7 +110,7 @@ def getHistoricalData(st):
     # Close the browser
     driver.quit()
 
-# recieve the list of industries, scrap industry sectors, and send stock data to getHistoricalData
+# recieve the list of industries, scrap stock's symbol in the industry, and send symbol and link to getHistoricalData
 # getStock([industries]) -> getHistoricalData(stock)
 def getStock(indList):
     for industry in indList:
@@ -126,8 +123,9 @@ def getStock(indList):
         elements = body.find_all('tr', class_='svelte-eurwtr')
         for element in elements:
             sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
-            name = element.find(class_='slw svelte-eurwtr').text
-            getHistoricalData(stock(sym,name,industry))
+            #name = element.find(class_='slw svelte-eurwtr').text
+            link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
+            getHistoricalData(sym, link)
 
 # update all csv files in the stock_data for most recent datas
 def updateDatas():
