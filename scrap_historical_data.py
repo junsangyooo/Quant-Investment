@@ -12,7 +12,12 @@ from io import StringIO
 import pandas as pd
 
 BASEURL = 'https://stockanalysis.com/'
-yahooURL = 'https://finance.yahoo.com/quote/'
+YAHOOURL = 'https://finance.yahoo.com/quote/'
+
+# Change for your environment
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
 
 DEBUG = False
 
@@ -20,7 +25,7 @@ class stock:
     def __init__(self, sym, name, industry):
         self.sym = sym
         self.name = name
-        self.link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
+        self.link = YAHOOURL + sym + '/history/'
         self.industry = industry
     def getSym(self):
         return self.sym
@@ -31,35 +36,8 @@ class stock:
     def getIndustry(self):
         return self.industry
 
-def getIndustries(indList = None):
-    industries = {}
-    response = requests.get(BASEURL + 'stocks/industry/sectors/')
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    elements = soup.find('tbody').find_all('tr', class_='svelte-qmv8b3')
-    for element in elements:
-        element = element.find('td', class_='svelte-qmv8b3')
-        industry = element.find('a').text
-        if indList == None or industry in indList:
-            industries[industry] = element.find('a', href=True).get('href')
-    return industries
-
-def getStock(indList = None):
-    stocks = []
-    industries = getIndustries(indList)
-    for industry, url in industries.items():
-        response = requests.get(BASEURL + url)
-        html = response.text
-
-        soup = BeautifulSoup(html, 'html.parser')
-        body = soup.find('tbody')
-        elements = body.find_all('tr', class_='svelte-eurwtr')
-        for element in elements:
-            sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
-            name = element.find(class_='slw svelte-eurwtr').text
-            stocks.append(stock(sym,name,industry))
-    return stocks
-
+# recieve the 'stock' type of data and web scrap the historical data of it
+# getHistoricalData(stock) -> save 'sym.csv' file to /cwd/stock_data
 def getHistoricalData(st):
     # Set up the directory where the script is running as the download directory
     currentDirectory = os.getcwd()
@@ -126,11 +104,33 @@ def getHistoricalData(st):
     # Close the browser
     driver.quit()
 
-# Change for your environment
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-}
+# recieve the list of industries, scrap industry sectors, and send stock data to getHistoricalData
+# getStock([industries]) -> getHistoricalData(stock)
+def getStock(indList):
+    industries = {}
+    response = requests.get(BASEURL + 'stocks/industry/sectors/')
+    html = response.text
+    soup = BeautifulSoup(html, 'html.parser')
+    elements = soup.find('tbody').find_all('tr', class_='svelte-qmv8b3')
+    for element in elements:
+        element = element.find('td', class_='svelte-qmv8b3')
+        industry = element.find('a').text
+        if not indList or industry in indList:
+            industries[industry] = element.find('a', href=True).get('href')
+    
+    for industry, url in industries.items():
+        response = requests.get(BASEURL + url)
+        html = response.text
 
+        soup = BeautifulSoup(html, 'html.parser')
+        body = soup.find('tbody')
+        elements = body.find_all('tr', class_='svelte-eurwtr')
+        for element in elements:
+            sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
+            name = element.find(class_='slw svelte-eurwtr').text
+            getHistoricalData(stock(sym,name,industry))
+
+# update all csv files in the stock_data for most recent datas
 def updateDatas():
     currentDir = os.getcwd()
     dataDir = os.path.join(currentDir, 'stock_data')
@@ -175,19 +175,15 @@ def updateDatas():
         else:
             print(f"Failed to fetch data for {sym}. HTTP Status Code: {response.status_code}")
 
-# def checkAndFixWrongData():
-#     currentDir = os.getcwd()
-#     dataDir = os.path.join(currentDir, 'stock_data')
+def main():
+    # If I need to scrap the historical datas of new stocks in specific industry, run below
+    indList = [] #['Financials', 'Healthcare', 'Technology', 'Industrials', 'Consumer Discretionary', 
+    # 'Materials', 'Real Estate', 'Communication Services', 'Energy', 'Consumer Staples', 'Utilities']
+    getStock(indList)
+    
+    # Everyday please run below once
+    updateDatas()
 
-#     for filename in os.listdir(dataDir):
-#         df = pd.read_csv(os.path.join(dataDir, filename))
-
-#         originLen = len(df)
-#         df.drop_duplicates(inplace=True)
-#         afterLen = len(df)
-
-#         if originLen != afterLen:
-#             print(f"Duplicates found and removed in {filename}:  {originLen - afterLen} date duplicates.")
-        
-#         # Save the cleaned DataFrame back to the CSV file
-#         df.to_csv(os.path.join(dataDir, filename), index=False)
+# delete comment when the development is done
+# def __init__():
+#     main()
