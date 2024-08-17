@@ -80,6 +80,8 @@ def getHistoricalData(stocks):
 
     # Initialize WebDriver with the Chrome options
     driver = webdriver.Chrome(options=chrome_options)
+
+    file_downloading = False
     for st in stocks:
         url = st.getUrl()
         sym = st.getSym()
@@ -112,9 +114,12 @@ def getHistoricalData(stocks):
             EC.element_to_be_clickable((By.XPATH, "//a[@data-ylk='elm:download;elmt:link;itc:1;sec:qsp-historical;slk:history-download;subsec:download']"))
         )
         download_button.click()
-
+        file_downloading = True
+        
         # Wait for the file to be downloaded
-        time.sleep(10)
+        while(file_downloading):
+            time.sleep(0.5)
+            if os.path.exists(csv_file_path): file_downloading = False
 
     # Close the browser
     driver.quit()
