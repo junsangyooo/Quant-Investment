@@ -11,8 +11,17 @@ import os
 from io import StringIO
 import pandas as pd
 
-BASEURL = 'https://stockanalysis.com/'
-YAHOOURL = 'https://finance.yahoo.com/quote/'
+INDUSTRIES = { 'Financials': 'https://stockanalysis.com/stocks/sector/financials/', 
+              'Healthcare':'https://stockanalysis.com/stocks/sector/healthcare/', 
+              'Technology':'https://stockanalysis.com/stocks/sector/technology/', 
+              'Industrials':'https://stockanalysis.com/stocks/sector/industrials/', 
+              'Consumer Discretionary':'https://stockanalysis.com/stocks/sector/consumer-discretionary/', 
+              'Materials':'https://stockanalysis.com/stocks/sector/materials/', 
+              'Real Estate':'https://stockanalysis.com/stocks/sector/real-estate/', 
+              'Communication Services':'https://stockanalysis.com/stocks/sector/communication-services/',
+              'Energy':'https://stockanalysis.com/stocks/sector/energy/', 
+              'Consumer Staples':'https://stockanalysis.com/stocks/sector/consumer-staples/', 
+              'Utilities':'https://stockanalysis.com/stocks/sector/utilities/'}
 
 # Change for your environment
 headers = {
@@ -25,7 +34,7 @@ class stock:
     def __init__(self, sym, name, industry):
         self.sym = sym
         self.name = name
-        self.link = YAHOOURL + sym + '/history/'
+        self.link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
         self.industry = industry
     def getSym(self):
         return self.sym
@@ -107,19 +116,9 @@ def getHistoricalData(st):
 # recieve the list of industries, scrap industry sectors, and send stock data to getHistoricalData
 # getStock([industries]) -> getHistoricalData(stock)
 def getStock(indList):
-    industries = {}
-    response = requests.get(BASEURL + 'stocks/industry/sectors/')
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    elements = soup.find('tbody').find_all('tr', class_='svelte-qmv8b3')
-    for element in elements:
-        element = element.find('td', class_='svelte-qmv8b3')
-        industry = element.find('a').text
-        if not indList or industry in indList:
-            industries[industry] = element.find('a', href=True).get('href')
-    
-    for industry, url in industries.items():
-        response = requests.get(BASEURL + url)
+    for industry in indList:
+        url = INDUSTRIES[industry]
+        response = requests.get(url)
         html = response.text
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -177,13 +176,12 @@ def updateDatas():
 
 def main():
     # If I need to scrap the historical datas of new stocks in specific industry, run below
-    indList = [] #['Financials', 'Healthcare', 'Technology', 'Industrials', 'Consumer Discretionary', 
+    indList = ['Communication Services'] #['Financials', 'Healthcare', 'Technology', 'Industrials', 'Consumer Discretionary', 
     # 'Materials', 'Real Estate', 'Communication Services', 'Energy', 'Consumer Staples', 'Utilities']
     getStock(indList)
     
     # Everyday please run below once
-    updateDatas()
+    # updateDatas()
+    # modified scrap_historical_data.py
 
-# delete comment when the development is done
-# def __init__():
-#     main()
+main()
