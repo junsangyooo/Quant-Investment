@@ -126,7 +126,7 @@ def updateDatas():
     currentDir = os.getcwd()
     dataDir = os.path.join(currentDir, 'stock_data')
     
-    endDate = datetime.combine(date.today() - timedelta(days=1), datetime.min.time())
+    endDate = datetime.combine(date.today(), datetime.min.time())
     for filename in os.listdir(dataDir):
         df = pd.read_csv(os.path.join(dataDir, filename))
         lastUpdatedDate = datetime.strptime(df.iloc[-1]['Date'],"%Y-%m-%d")
@@ -177,5 +177,4 @@ def main():
     # Everyday please run below once
     updateDatas()
     # modified scrap_historical_data.py
-
-main()
+updateDatas()
