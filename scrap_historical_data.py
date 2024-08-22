@@ -30,23 +30,8 @@ headers = {
 
 DEBUG = False
 
-class stock:
-    def __init__(self, sym, name, industry):
-        self.sym = sym
-        self.name = name
-        self.link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
-        self.industry = industry
-    def getSym(self):
-        return self.sym
-    def getName(self):
-        return self.name
-    def getUrl(self):
-        return self.link
-    def getIndustry(self):
-        return self.industry
-
-# recieve the 'stock' type of data and web scrap the historical data of it
-# getHistoricalData(stock) -> save 'sym.csv' file to /cwd/stock_data
+# recieve parameters and web scrap the historical data of it
+# getHistoricalData(sym, url) -> save 'sym.csv' file to /cwd/stock_data
 def getHistoricalData(sym, url):
     # Set up the directory where the script is running as the download directory
     currentDirectory = os.getcwd()
@@ -80,28 +65,32 @@ def getHistoricalData(sym, url):
         print(f"File {sym}.csv already exists. Skipping download.")
         return
     
-    print(f'driver.get({url})')
+    if DEBUG:
+        print(f'driver.get({url})')
     driver.get(url)
     
     # Wait for the "Time Period" button to be clickable and click it
     periodButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CLASS_NAME, "tertiary-btn.fin-size-small.menuBtn.rounded.yf-122t2xs"))
     )
-    print("click a periodButton")
+    if DEBUG:
+        print(" click a periodButton")
     periodButton.click()
 
     # Wait for the menu to appear and the "Max" button to be clickable
     maxButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//button[text()='Max']"))
     )
-    print("click a maxButton")
+    if DEBUG:
+        print("click a maxButton")
     maxButton.click()
 
     # Wait for the download button to be clickable and click it
     downloadButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//a[@data-ylk='elm:download;elmt:link;itc:1;sec:qsp-historical;slk:history-download;subsec:download']"))
     )
-    print("click a downloadButton")
+    if DEBUG:
+        print("click a downloadButton")
     downloadButton.click()
     
     # Wait for the file to be downloaded
@@ -128,7 +117,8 @@ def getStock(indList):
             sym = element.find('td', class_='sym svelte-eurwtr').find('a').text.replace('.','-')
             #name = element.find(class_='slw svelte-eurwtr').text
             link = 'https://finance.yahoo.com/quote/' + sym + '/history/'
-            print(f'call getHistoricalData({sym}, {link})')
+            if DEBUG:
+                print(f'call getHistoricalData({sym}, {link})')
             getHistoricalData(sym, link)
 
 # update all csv files in the stock_data for most recent datas
@@ -155,7 +145,8 @@ def updateDatas():
 
         # Fetch the CSV data from the URL without saving it to disk
         response = requests.get(href, headers=headers)
-        print(filename)
+        if DEBUG:
+            print(filename)
         if response.status_code == 200:
             updateData = StringIO(response.text)
             updateDf = pd.read_csv(updateData)
@@ -178,12 +169,13 @@ def updateDatas():
 
 def main():
     # If I need to scrap the historical datas of new stocks in specific industry, run below
-    indList = ['Communication Services'] #['Financials', 'Healthcare', 'Technology', 'Industrials', 'Consumer Discretionary', 
+    # intList = ['Financials', 'Healthcare', 'Technology', 'Industrials', 'Consumer Discretionary', 
     # 'Materials', 'Real Estate', 'Communication Services', 'Energy', 'Consumer Staples', 'Utilities']
-    getStock(indList)
+    # indList = ['Communication Services'] 
+    # getStock(indList)
     
     # Everyday please run below once
-    # updateDatas()
+    updateDatas()
     # modified scrap_historical_data.py
 
 main()
