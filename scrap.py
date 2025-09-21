@@ -176,5 +176,5 @@ def main():
     
     # Everyday please run below once
     updateDatas()
-    # modified scrap_historical_data.py
-updateDatas()
+
+if __name__ == "__main__": updateDatas()
