@@ -11,57 +11,42 @@ if not os.path.exists(processed_dir):
     os.makedirs(processed_dir)
 
 def compute_features(df):
-    """
-    Given a stock DataFrame with columns [Date, Open, High, Low, Close, Adj Close, Volume],
-    compute useful ML features and return processed DataFrame.
-    """
-
     df = df.copy()
     df['Date'] = pd.to_datetime(df['Date'])
     df = df.sort_values('Date').reset_index(drop=True)
 
-    # --- Core financial features ---
-
-    # Daily returns based on Adj Close
+    # Daily return
     df['Return'] = df['Adj Close'].pct_change()
 
-    # Moving averages (trend indicators)
+    # Moving averages
     df['MA5'] = df['Adj Close'].rolling(window=5).mean()
     df['MA20'] = df['Adj Close'].rolling(window=20).mean()
     df['MA50'] = df['Adj Close'].rolling(window=50).mean()
 
-    # Exponential moving average
+    # Exponential moving averages
     df['EMA12'] = df['Adj Close'].ewm(span=12, adjust=False).mean()
     df['EMA26'] = df['Adj Close'].ewm(span=26, adjust=False).mean()
-
-    # MACD (trend momentum indicator)
     df['MACD'] = df['EMA12'] - df['EMA26']
 
-    # Bollinger Bands (volatility)
+    # Bollinger Bands
     df['BB_Middle'] = df['MA20']
     df['BB_Upper'] = df['MA20'] + (2 * df['Adj Close'].rolling(window=20).std())
     df['BB_Lower'] = df['MA20'] - (2 * df['Adj Close'].rolling(window=20).std())
 
-    # Rolling volatility (20-day)
+    # Volatility
     df['Volatility20'] = df['Return'].rolling(window=20).std()
 
-    # RSI (Relative Strength Index, 14-day)
+    # RSI
     delta = df['Adj Close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
     RS = gain / (loss + 1e-9)
     df['RSI14'] = 100 - (100 / (1 + RS))
 
-    # Drop rows with NaN (from rolling calculations)
     df = df.dropna().reset_index(drop=True)
-
     return df
 
 def preprocess_all():
-    """
-    Iterate through all CSV files in stock_data/, compute features,
-    and save to processed_data/ with same filename.
-    """
     for filename in os.listdir(raw_data_dir):
         if filename.endswith('.csv'):
             filepath = os.path.join(raw_data_dir, filename)
