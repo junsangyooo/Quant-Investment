@@ -2,7 +2,7 @@ import argparse
 import scrap
 import preprocess
 import train_model
-
+## python main.py --step all --period 30 --threshold 0.1 --topn 5
 def run_scraping():
     print("=== Updating raw stock data (scrap.py) ===")
     scrap.updateDatas()
