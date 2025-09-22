@@ -55,7 +55,8 @@ def getHistoricalData(sym, url):
     chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver with the Chrome options
-    driver = webdriver.Chrome(options=chromeOptions)
+   driver = webdriver.Chrome(executable_path="./chromedriver", options=chromeOptions)
+
 
     # Construct the path to the CSV file
     filePath = os.path.join(downloadDirectory, f'{sym}.csv')
