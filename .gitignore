@@ -11,9 +11,9 @@ chromedriver.exe
 google-chrome-stable_current_amd64.deb
 
 # Data files (raw & processed)
-stock_data/
-processed_data/
-models/
+# stock_data/
+# processed_data/
+# models/
 
 # Virtual envs
 venv/
