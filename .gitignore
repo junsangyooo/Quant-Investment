@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Chrome & drivers
+chromedriver
+chromedriver.exe
+google-chrome-stable_current_amd64.deb
+
+# Data files (raw & processed)
+stock_data/
+processed_data/
+models/
+
+# Virtual envs
+venv/
+.venv/
+
