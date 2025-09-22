@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 current_directory = os.getcwd()
 processed_dir = os.path.join(current_directory, 'processed_data')
 
+
 def add_target(df, period, threshold):
     """
     Adds binary target column: 1 if price rises >= threshold within 'period' days.
