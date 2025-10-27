@@ -1,0 +1,24 @@
+# Basic instruction (blog): https://wikidocs.net/profile/info/book/13688
+# Basic instruction (API): https://apiportal.koreainvestment.com/apiservice/oauth2#L_5c87ba63-740a-4166-93ac-803510bb9c02
+# KoreaInvest GitHub: https://github.com/koreainvestment/open-trading-api
+# Jocoding GitHub: https://github.com/youtube-jocoding/koreainvestment-autotrade
+
+my_app: "PS87iiWlksmzSU8JilwwZyO6I6pH4k4qKXeR"
+my_sec: "E9mgaarv+ndZ93+LU2+bKjYWAXHanH8+g0vtDLCYVN6sAKX81YQNJAO3SajR74nzboVgPu1NA2jQkGJai9pCAe/8gTEGTM1L58udnrRQUpAZTP9Jes3d3X06a3iBsO6RF0EA2qyQZtmvWuesHnO7Gl653+wcFZAIw+mydJTFQAp1pI3Vgbw="
+
+# First 8 digits of account number
+my_acct: "64428904"
+# Last 2 digits of account number (product code)
+my_prod: "01"
+# my_prod: "03"
+
+# Real trading
+prod: "https://openapi.koreainvestment.com:9443"
+
+# WebSocket
+ops: "ws://ops.koreainvestment.com:21000" 
+
+# Discord webhook URL
+# DISCORD_WEBHOOK_URL: ""
+
+my_agent : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"

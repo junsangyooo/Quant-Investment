@@ -1,0 +1,47 @@
+# ========================================
+# Quant-Investment Configuration Template
+# ========================================
+#
+# 설정 방법:
+# 1. 이 파일을 config.yaml로 복사하세요
+#    cp config.example.yaml config.yaml
+#
+# 2. config.yaml에 자신의 실제 자격증명을 입력하세요
+#
+# 3. config.yaml은 절대 GitHub에 커밋하면 안 됩니다!
+#    (.gitignore에 자동으로 등록되어 있습니다)
+#
+# ========================================
+
+# Korea Investment API 자격증명
+my_app: "YOUR_APP_KEY_HERE"        # KIS 앱 키
+my_sec: "YOUR_APP_SECRET_HERE"      # KIS 앱 시크릿
+
+# 계좌 정보
+my_acct: "YOUR_ACCOUNT_FIRST_8_DIGITS"  # 계좌번호 앞 8자리
+my_prod: "01"                            # 상품코드 (01=실전투자, 03=모의투자)
+
+# API 엔드포인트
+prod: "https://openapi.koreainvestment.com:9443"  # 실전투자 서버
+
+# WebSocket (실시간 시세)
+ops: "ws://ops.koreainvestment.com:21000"
+
+# 선택사항: Discord 알림
+# DISCORD_WEBHOOK_URL: "YOUR_DISCORD_WEBHOOK_URL"
+
+# User Agent (웹 스크래핑용)
+my_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+
+# ========================================
+# 자격증명 획득 방법:
+# ========================================
+# 1. Korea Investment API 포털 방문
+#    https://apiportal.koreainvestment.com/
+#
+# 2. 계정 생성 및 API 키 발급
+#
+# 3. my_app과 my_sec 값 복사
+#
+# 4. 자신의 증권계좌번호 확인
+# ========================================

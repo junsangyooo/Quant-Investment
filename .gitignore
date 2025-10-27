@@ -19,3 +19,10 @@ google-chrome-stable_current_amd64.deb
 venv/
 .venv/
 
+# 🔒 Security: Credential files (NEVER commit these!)
+config.yaml
+.env
+.env.local
+*.key
+*.pem
+
